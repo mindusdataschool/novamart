@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if product else 'Novo' }} Produto - NovaMart{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>
+        <i class="fas fa-box me-2" style="color:var(--primary)"></i>
+        {{ 'Editar' if product else 'Novo' }} Produto
+    </h2>
+    <p>{{ 'Atualize os dados do produto' if product else 'Cadastre um novo produto no catálogo' }}</p>
+</div>
+
+<div class="card-custom">
+    <div class="card-body p-4">
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label text-muted">Nome do Produto *</label>
+                    <input type="text" name="name" class="form-control bg-dark text-light border-secondary"
+                           value="{{ product.nome if product else '' }}" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">SKU</label>
+                    <input type="text" name="sku" class="form-control bg-dark text-light border-secondary"
+                           value="{{ product.sku if product else '' }}" placeholder="ELE-NOTE-001">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-muted">Seller *</label>
+                    <select name="id_vendedor" class="form-select bg-dark text-light border-secondary" required>
+                        <option value="">Selecione o seller...</option>
+                        {% for s in sellers %}
+                        <option value="{{ s.id }}" {% if product and product.id_vendedor == s.id %}selected{% endif %}>
+                            {{ s.nome_empresa }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted">Categoria</label>
+                    <select name="id_categoria" id="category_id" class="form-select bg-dark text-light border-secondary">
+                        <option value="">Selecione...</option>
+                        {% for c in categories %}
+                        <option value="{{ c.id }}" {% if product and product.id_categoria == c.id %}selected{% endif %}>
+                            {{ c.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted">Subcategoria</label>
+                    <select name="id_subcategoria" id="subcategory_id" class="form-select bg-dark text-light border-secondary">
+                        <option value="">Selecione...</option>
+                        {% for sc in subcategories %}
+                        <option value="{{ sc.id }}" data-category="{{ sc.id_categoria }}"
+                                {% if product and product.id_subcategoria == sc.id %}selected{% endif %}>
+                            {{ sc.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label text-muted">Descrição</label>
+                    <textarea name="descricao" rows="3" class="form-control bg-dark text-light border-secondary">{{ product.descricao if product else '' }}</textarea>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted">Preço (R$) *</label>
+                    <input type="number" name="preco" step="0.01" min="0"
+                           class="form-control bg-dark text-light border-secondary"
+                           value="{{ product.preco if product else '' }}" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label text-muted">Custo (R$)</label>
+                    <input type="number" name="preco_custo" step="0.01" min="0"
+                           class="form-control bg-dark text-light border-secondary"
+                           value="{{ product.preco_custo if product else '' }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted">Estoque</label>
+                    <input type="number" name="quantidade_estoque" min="0"
+                           class="form-control bg-dark text-light border-secondary"
+                           value="{{ product.quantidade_estoque if product else 0 }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted">Peso (kg)</label>
+                    <input type="number" name="weight_kg" step="0.001" min="0"
+                           class="form-control bg-dark text-light border-secondary"
+                           value="{{ product.weight_kg if product else '' }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted">Status</label>
+                    <select name="status" class="form-select bg-dark text-light border-secondary">
+                        <option value="active" {% if not product or product.status == 'active' %}selected{% endif %}>Ativo</option>
+                        <option value="inactive" {% if product and product.status == 'inactive' %}selected{% endif %}>Inativo</option>
+                        <option value="out_of_stock" {% if product and product.status == 'out_of_stock' %}selected{% endif %}>Sem estoque</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label text-muted">&nbsp;</label>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" name="e_digital" id="e_digital"
+                               {% if product and product.e_digital %}checked{% endif %}>
+                        <label class="form-check-label text-muted" for="e_digital">Produto Digital</label>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary-custom">
+                    <i class="fas fa-save me-1"></i> {{ 'Atualizar' if product else 'Cadastrar' }}
+                </button>
+                <a href="/products" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Filter subcategories based on selected category
+document.getElementById('category_id').addEventListener('change', function() {
+    const catId = this.value;
+    const subSelect = document.getElementById('subcategory_id');
+    const options = subSelect.querySelectorAll('option[data-category]');
+    options.forEach(opt => {
+        opt.style.display = (!catId || opt.dataset.category === catId) ? '' : 'none';
+    });
+    if (catId) subSelect.value = '';
+});
+</script>
+{% endblock %}

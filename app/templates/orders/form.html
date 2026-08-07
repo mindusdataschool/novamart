@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Novo Pedido - NovaMart{% endblock %}
+
+{% block extra_css %}
+<style>
+    .product-row { background: rgba(124,58,237,0.06); border: 1px solid rgba(124,58,237,0.12); border-radius: var(--r-md); padding: 0.75rem; margin-bottom: 0.5rem; }
+    .product-row .remove-btn { cursor: pointer; color: #F87171; transition: color .15s; }
+    .product-row .remove-btn:hover { color: #EF4444; }
+    #product-list .product-row:only-child .remove-btn { display: none; }
+    .totals-box { background: rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.15); border-radius: var(--r-md); padding: 1rem 1.25rem; }
+    .totals-box .total-label { color: var(--text-secondary); font-size: .875rem; }
+    .totals-box .total-value { color: var(--text); font-size: .875rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fas fa-cart-plus me-2" style="color:var(--primary)"></i>Novo Pedido</h2>
+    <p>Selecione o cliente, produtos e crie um novo pedido</p>
+</div>
+
+<div class="card-custom">
+    <div class="card-body p-4">
+        <form method="POST" id="order-form">
+            <div class="row g-3">
+                <!-- Customer -->
+                <div class="col-md-6">
+                    <label class="form-label text-muted">Cliente *</label>
+                    <select name="id_cliente" class="form-select bg-dark text-light border-secondary" required>
+                        <option value="">Selecione o cliente...</option>
+                        {% for c in customers %}
+                        <option value="{{ c.id }}">{{ c.nome_completo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label text-muted">Forma de Pagamento *</label>
+                    <select name="id_metodo_pagamento" class="form-select bg-dark text-light border-secondary" required>
+                        {% for pm in payment_methods %}
+                        <option value="{{ pm.id }}">{{ pm.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label text-muted">Frete (R$)</label>
+                    <input type="number" name="custo_frete" step="0.01" min="0" value="0"
+                           class="form-control bg-dark text-light border-secondary" id="shipping-cost">
+                </div>
+
+                <input type="hidden" name="id_status" value="1">
+            </div>
+
+            <!-- Products Section -->
+            <div class="mt-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0"><i class="fas fa-boxes me-2" style="color:var(--accent)"></i>Produtos</h6>
+                    <button type="button" class="btn btn-sm btn-outline-light" id="add-product-btn" style="border-radius:var(--r-pill);padding:.35rem .9rem;font-size:.8rem;">
+                        <i class="fas fa-plus me-1"></i> Adicionar Produto
+                    </button>
+                </div>
+
+                <div id="product-list">
+                    <div class="product-row d-flex gap-2 align-items-center">
+                        <div class="flex-grow-1">
+                            <select name="product_ids[]" class="form-select bg-dark text-light border-secondary product-select" required>
+                                <option value="">Selecione um produto...</option>
+                                {% for p in products %}
+                                <option value="{{ p.id }}" data-price="{{ p.preco }}" data-seller="{{ p.seller_name }}">
+                                    {{ p.nome }} — R$ {{ '%.2f'|format(p.preco|float) }} ({{ p.seller_name }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="width:100px;">
+                            <input type="number" name="quantities[]" min="1" value="1"
+                                   class="form-control bg-dark text-light border-secondary qty-input">
+                        </div>
+                        <div style="width:120px;" class="text-end item-subtotal text-muted">R$ 0,00</div>
+                        <div><i class="fas fa-trash remove-btn"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Totals -->
+            <div class="totals-box mt-4">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="total-label">Subtotal</span>
+                    <span class="total-value" id="subtotal">R$ 0,00</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="total-label">Frete</span>
+                    <span class="total-value" id="shipping-display">R$ 0,00</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                    <strong style="color:var(--text);">Total</strong>
+                    <strong id="total" style="color:var(--accent);font-size:1.3rem;letter-spacing:-.3px;">R$ 0,00</strong>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary-custom">
+                    <i class="fas fa-check me-1"></i> Criar Pedido
+                </button>
+                <a href="/orders" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const productTemplate = document.querySelector('.product-row').cloneNode(true);
+
+function formatBRL(value) {
+    return 'R$ ' + value.toFixed(2).replace('.', ',');
+}
+
+function recalculate() {
+    let subtotal = 0;
+    document.querySelectorAll('.product-row').forEach(row => {
+        const select = row.querySelector('.product-select');
+        const qty = parseInt(row.querySelector('.qty-input').value) || 0;
+        const option = select.options[select.selectedIndex];
+        const price = option && option.dataset.price ? parseFloat(option.dataset.price) : 0;
+        const itemTotal = price * qty;
+        subtotal += itemTotal;
+        row.querySelector('.item-subtotal').textContent = formatBRL(itemTotal);
+    });
+    const shipping = parseFloat(document.getElementById('shipping-cost').value) || 0;
+    document.getElementById('subtotal').textContent = formatBRL(subtotal);
+    document.getElementById('shipping-display').textContent = formatBRL(shipping);
+    document.getElementById('total').textContent = formatBRL(subtotal + shipping);
+}
+
+document.getElementById('add-product-btn').addEventListener('click', () => {
+    const newRow = productTemplate.cloneNode(true);
+    newRow.querySelector('.product-select').value = '';
+    newRow.querySelector('.qty-input').value = 1;
+    newRow.querySelector('.item-subtotal').textContent = 'R$ 0,00';
+    document.getElementById('product-list').appendChild(newRow);
+    attachRowEvents(newRow);
+});
+
+function attachRowEvents(row) {
+    row.querySelector('.product-select').addEventListener('change', recalculate);
+    row.querySelector('.qty-input').addEventListener('input', recalculate);
+    row.querySelector('.remove-btn').addEventListener('click', () => {
+        if (document.querySelectorAll('.product-row').length > 1) {
+            row.remove();
+            recalculate();
+        }
+    });
+}
+
+// Attach to initial row
+document.querySelectorAll('.product-row').forEach(attachRowEvents);
+document.getElementById('shipping-cost').addEventListener('input', recalculate);
+</script>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if customer else 'Novo' }} Cliente - NovaMart{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>
+        <i class="fas fa-user-{{ 'edit' if customer else 'plus' }} me-2" style="color:var(--primary)"></i>
+        {{ 'Editar' if customer else 'Novo' }} Cliente
+    </h2>
+    <p>{{ 'Atualize os dados do cliente' if customer else 'Preencha os dados para cadastrar um novo cliente' }}</p>
+</div>
+
+<div class="card-custom">
+    <div class="card-body p-4">
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label text-muted">Nome Completo *</label>
+                    <input type="text" name="nome_completo" class="form-control bg-dark text-light border-secondary"
+                           value="{{ customer.nome_completo if customer else '' }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-muted">Email</label>
+                    <input type="email" name="email" class="form-control bg-dark text-light border-secondary"
+                           value="{{ customer.email if customer else '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">Telefone</label>
+                    <input type="text" name="telefone" class="form-control bg-dark text-light border-secondary"
+                           value="{{ customer.telefone if customer else '' }}" placeholder="(11) 91234-5678">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">CPF</label>
+                    <input type="text" name="cpf" class="form-control bg-dark text-light border-secondary"
+                           value="{{ customer.cpf if customer else '' }}" placeholder="123.456.789-00">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">Data de Nascimento</label>
+                    <input type="date" name="data_nascimento" class="form-control bg-dark text-light border-secondary"
+                           value="{{ customer.data_nascimento.isoformat() if customer and customer.data_nascimento else '' }}">
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label text-muted">Endereço</label>
+                    <input type="text" name="endereco_raw" class="form-control bg-dark text-light border-secondary"
+                           value="{{ customer.endereco_raw if customer else '' }}"
+                           placeholder="Rua, número, complemento">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">Cidade</label>
+                    <input type="text" name="city" class="form-control bg-dark text-light border-secondary"
+                           value="{{ customer.cidade if customer else '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">UF</label>
+                    <select name="state" class="form-select bg-dark text-light border-secondary">
+                        <option value="">Selecione...</option>
+                        {% set states = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'] %}
+                        {% for uf in states %}
+                        <option value="{{ uf }}" {% if customer and customer.estado == uf %}selected{% endif %}>{{ uf }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">CEP</label>
+                    <input type="text" name="cep" class="form-control bg-dark text-light border-secondary"
+                           value="{{ customer.cep if customer else '' }}" placeholder="01234-567">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">Status</label>
+                    <select name="status" class="form-select bg-dark text-light border-secondary">
+                        <option value="active" {% if not customer or customer.status == 'active' %}selected{% endif %}>Ativo</option>
+                        <option value="inactive" {% if customer and customer.status == 'inactive' %}selected{% endif %}>Inativo</option>
+                        <option value="blocked" {% if customer and customer.status == 'blocked' %}selected{% endif %}>Bloqueado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary-custom">
+                    <i class="fas fa-save me-1"></i> {{ 'Atualizar' if customer else 'Cadastrar' }}
+                </button>
+                <a href="/customers" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

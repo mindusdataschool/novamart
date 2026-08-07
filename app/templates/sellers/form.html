@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Editar' if seller else 'Novo' }} Seller - NovaMart{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>
+        <i class="fas fa-store me-2" style="color:var(--primary)"></i>
+        {{ 'Editar' if seller else 'Novo' }} Seller
+    </h2>
+    <p>{{ 'Atualize os dados do seller' if seller else 'Cadastre um novo vendedor parceiro' }}</p>
+</div>
+
+<div class="card-custom">
+    <div class="card-body p-4">
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label text-muted">Razão Social *</label>
+                    <input type="text" name="nome_empresa" class="form-control bg-dark text-light border-secondary"
+                           value="{{ seller.nome_empresa if seller else '' }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-muted">Nome Fantasia</label>
+                    <input type="text" name="nome_fantasia" class="form-control bg-dark text-light border-secondary"
+                           value="{{ seller.nome_fantasia if seller else '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">CNPJ</label>
+                    <input type="text" name="cnpj" class="form-control bg-dark text-light border-secondary"
+                           value="{{ seller.cnpj if seller else '' }}" placeholder="12.345.678/0001-00">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">Email de Contato</label>
+                    <input type="email" name="email_contato" class="form-control bg-dark text-light border-secondary"
+                           value="{{ seller.email_contato if seller else '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">Telefone de Contato</label>
+                    <input type="text" name="telefone_contato" class="form-control bg-dark text-light border-secondary"
+                           value="{{ seller.telefone_contato if seller else '' }}">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">Categoria</label>
+                    <select name="id_categoria" class="form-select bg-dark text-light border-secondary">
+                        <option value="">Selecione...</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if seller and seller.id_categoria == cat.id %}selected{% endif %}>
+                            {{ cat.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">Taxa de Comissão (%)</label>
+                    <input type="number" name="taxa_comissao" step="0.01" min="0" max="1"
+                           class="form-control bg-dark text-light border-secondary"
+                           value="{{ seller.taxa_comissao if seller else '' }}"
+                           placeholder="0.12 = 12%">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">Status</label>
+                    <select name="status" class="form-select bg-dark text-light border-secondary">
+                        <option value="active" {% if not seller or seller.status == 'active' %}selected{% endif %}>Ativo</option>
+                        <option value="inactive" {% if seller and seller.status == 'inactive' %}selected{% endif %}>Inativo</option>
+                        <option value="suspended" {% if seller and seller.status == 'suspended' %}selected{% endif %}>Suspenso</option>
+                    </select>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label text-muted">Endereço</label>
+                    <input type="text" name="endereco_raw" class="form-control bg-dark text-light border-secondary"
+                           value="{{ seller.endereco_raw if seller else '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-muted">Cidade</label>
+                    <input type="text" name="city" class="form-control bg-dark text-light border-secondary"
+                           value="{{ seller.cidade if seller else '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label text-muted">UF</label>
+                    <select name="state" class="form-select bg-dark text-light border-secondary">
+                        <option value="">Selecione...</option>
+                        {% set states = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'] %}
+                        {% for uf in states %}
+                        <option value="{{ uf }}" {% if seller and seller.estado == uf %}selected{% endif %}>{{ uf }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary-custom">
+                    <i class="fas fa-save me-1"></i> {{ 'Atualizar' if seller else 'Cadastrar' }}
+                </button>
+                <a href="/sellers" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}NovaMart - Relatórios{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--r-xl);
+        padding: 2.75rem;
+        max-width: 560px;
+        margin: 0 auto;
+    }
+    .report-card .icon-wrapper {
+        width: 76px; height: 76px;
+        border-radius: var(--r-xl);
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 8px 28px rgba(124,58,237,.35);
+    }
+    .report-card .icon-wrapper i { font-size: 1.9rem; color: #fff; }
+    .form-select-custom {
+        background: var(--bg-input) !important;
+        border: 1px solid var(--border-light) !important;
+        color: var(--text) !important;
+        border-radius: var(--r-md) !important;
+        padding: .65rem 1rem;
+    }
+    .form-select-custom:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 3px rgba(124,58,237,.18) !important;
+        background: var(--bg-input) !important;
+        color: var(--text) !important;
+    }
+    .form-select-custom option { background: #1A1730; color: var(--text); }
+    .btn-generate {
+        background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+        border: none;
+        color: #fff;
+        font-weight: 700;
+        padding: .85rem 2rem;
+        font-size: .95rem;
+        width: 100%;
+        cursor: pointer;
+        transition: all .2s;
+        border-radius: var(--r-pill);
+        box-shadow: 0 4px 16px rgba(124,58,237,.28);
+    }
+    .btn-generate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(124,58,237,.38);
+    }
+    .btn-generate:disabled { opacity: .6; transform: none; }
+    .spinner-border-sm { display: none; }
+    .loading .spinner-border-sm { display: inline-block; }
+    .loading .btn-text { display: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header text-center">
+    <h2>Relatórios Mensais</h2>
+    <p>Gere relatórios em PDF com os indicadores do marketplace</p>
+</div>
+
+<div class="report-card">
+    <div class="icon-wrapper">
+        <i class="fas fa-file-pdf"></i>
+    </div>
+    <h4 class="text-center mb-1" style="color:var(--text);font-weight:700;">Relatório Mensal NovaMart</h4>
+    <p class="text-center mb-4" style="color:var(--text-secondary);">Selecione o mês e ano para gerar o relatório completo</p>
+
+    <form id="reportForm" action="/reports/generate" method="POST">
+        <div class="row g-3 mb-4">
+            <div class="col-6">
+                <label class="form-label">Mês</label>
+                <select name="month" class="form-select form-select-custom" required>
+                    {% set month_names = {1:'Janeiro', 2:'Fevereiro', 3:'Março', 4:'Abril', 5:'Maio', 6:'Junho', 7:'Julho', 8:'Agosto', 9:'Setembro', 10:'Outubro', 11:'Novembro', 12:'Dezembro'} %}
+                    {% for m in months %}
+                    <option value="{{ m.month }}">{{ month_names[m.month] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-6">
+                <label class="form-label">Ano</label>
+                <select name="year" class="form-select form-select-custom" required>
+                    {% set years_seen = [] %}
+                    {% for m in months %}
+                        {% if m.year not in years_seen %}
+                        <option value="{{ m.year }}">{{ m.year }}</option>
+                        {% if years_seen.append(m.year) %}{% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-generate" id="btnGenerate">
+            <span class="btn-text"><i class="fas fa-download me-2"></i>Gerar Relatório PDF</span>
+            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+            <span class="loading-text" style="display:none;">Gerando...</span>
+        </button>
+    </form>
+
+    <div class="mt-4 text-center">
+        <small style="color:var(--text-muted);">
+            <i class="fas fa-info-circle me-1"></i>
+            O relatório inclui: receita, pedidos, top categorias, top sellers, métodos de pagamento e tendências
+        </small>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('reportForm').addEventListener('submit', function() {
+    const btn = document.getElementById('btnGenerate');
+    btn.classList.add('loading');
+    btn.disabled = true;
+    document.querySelector('.loading-text').style.display = 'inline';
+    setTimeout(() => {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+        document.querySelector('.loading-text').style.display = 'none';
+    }, 5000);
+});
+</script>
+{% endblock %}
