@@ -5,9 +5,6 @@ Main web application with:
 - Home: Overview dashboard
 - Dashboard: Blank page for Metabase iframe embed
 - Reports: Month/year filter to generate PDF reports
-
-mudança de colega de trabalho
-
 """
 
 
