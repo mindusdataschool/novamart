@@ -7,9 +7,6 @@ Main web application with:
 - Reports: Month/year filter to generate PDF reports
 """
 
-
-
-
 import io
 import os
 from datetime import datetime
