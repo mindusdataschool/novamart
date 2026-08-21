@@ -1,0 +1,12 @@
+sources:
+  - name: app
+    database: novamart
+    schema: app  
+    tables:
+      - name: orders
+      - name: customers
+      - name: products
+      - name: order_items
+      - name: payments
+      - name: reviews
+      - name: sellers

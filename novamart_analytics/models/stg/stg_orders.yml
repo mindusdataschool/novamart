@@ -1,0 +1,16 @@
+models:
+  - name: stg_orders
+    description: "Staging table for orders data"
+    columns:
+      - name: id_pedido
+        description: "Identificador unico do pedido"
+        tests:
+          - not_null
+          - unique
+      - name: id_status
+        description: "Identificador do status do pedido"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5, 6, 7,8]
+              severity: warn
