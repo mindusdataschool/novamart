@@ -10,3 +10,5 @@ sources:
       - name: payments
       - name: reviews
       - name: sellers
+      - name: order_statuses
+      - name: product_categories
