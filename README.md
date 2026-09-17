@@ -63,6 +63,8 @@ A interface permite visualizar indicadores de negócio, navegar por cadastros e 
 - `scripts/` – DDL, seed data, ingestão contínua e regras de negócio
 - `requirements.txt` – dependências do projeto
 
+![Arquitetura do pipeline](analytics_novamart.svg)
+
 ---
 
 ## 2) Documentação breve dos dados backend
