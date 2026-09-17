@@ -25,6 +25,7 @@ from decimal import Decimal
 
 import numpy as np
 import psycopg2
+from dateutil.relativedelta import relativedelta
 from faker import Faker
 
 fake = Faker("pt_BR")
@@ -63,9 +64,16 @@ NUM_PRODUCTS = 150
 NUM_ORDERS = 800
 NUM_COUPONS = 10
 
-# Date range for historical data
-START_DATE = datetime(2024, 7, 1)
-END_DATE = datetime(2025, 12, 31)
+# Date range for historical data — sempre relativo a "agora": vai de 1 ano
+# atrás até hoje, sem lacuna. Como o continuous_ingestion.py sempre insere
+# pedidos com data próxima de "agora" (e não sabe nada sobre este END_DATE),
+# terminar o seed exatamente em "agora" garante que o cron continue a série
+# temporal exatamente de onde o seed parou, sem buraco no meio. Recalculado
+# a cada execução do script — rodar de novo mais pra frente no curso desloca
+# a janela toda para frente também.
+_NOW = datetime.now()
+END_DATE = _NOW
+START_DATE = _NOW - relativedelta(years=1)
 
 # Brazilian states with population weight
 BR_STATES = {
@@ -1078,7 +1086,11 @@ def seed_seller_payouts(conn):
         tax = round(gross * 0.0825, 2)
         net = round(gross - commission - tax, 2)
 
-        status = "paid" if ref_month < datetime(2025, 11, 1).date() else "pending"
+        # Pago se o mês de referência é anterior ao último mês coberto pelo
+        # seed (END_DATE); o último mês, por ainda estar "fechando", fica
+        # como pendente. Antes era uma data fixa — agora acompanha o
+        # END_DATE dinâmico.
+        status = "paid" if ref_month < END_DATE.replace(day=1).date() else "pending"
         pago_em = (datetime.combine(ref_month, datetime.min.time()) + timedelta(days=random.randint(15, 30))) if status == "paid" else None
 
         ref_str = ref_month.strftime("%Y-%m")
@@ -1104,6 +1116,7 @@ def run_full_seed():
     try:
         print("=" * 60)
         print("NovaMart - Seed Data Generator")
+        print(f"Período de dados: {START_DATE.date()} até {END_DATE.date()}")
         print("=" * 60)
 
         seed_lookup_tables(conn)

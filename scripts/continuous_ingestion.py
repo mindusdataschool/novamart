@@ -358,7 +358,7 @@ def run_ingestion_cycle(new_orders=5):
 
 
 def main():
-    parser = argparse.ArgumentParser(descricao="NovaMart Continuous Data Ingestion")
+    parser = argparse.ArgumentParser(description="NovaMart Continuous Data Ingestion")
     parser.add_argument("--orders", type=int, default=5, help="New orders per cycle (default: 5)")
     parser.add_argument("--loop", type=int, default=0, help="Loop interval in seconds (0 = run once)")
     args = parser.parse_args()

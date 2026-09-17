@@ -9,6 +9,7 @@ padronizado as (
         id_vendedor,
         quantidade,
         preco_unitario,
+        preco_total,
         criado_em
     from source
 )
