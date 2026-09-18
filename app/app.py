@@ -11,6 +11,12 @@ import io
 import os
 from datetime import datetime
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
 from flask import Flask, render_template, request, send_file, jsonify, redirect, url_for, flash
 
 from database import query, query_one, execute
@@ -59,7 +65,12 @@ def index():
 @app.route("/dashboard")
 def dashboard():
     """Blank page for embedding Metabase dashboard via iframe."""
-    return render_template("dashboard.html")
+    site_url = os.getenv("METABASE_SITE_URL", "").rstrip("/")
+    token = os.getenv("METABASE_DASHBOARD_TOKEN", "")
+    embed_url = None
+    if site_url and token:
+        embed_url = f"{site_url}/embed/dashboard/{token}#bordered=true&titled=true"
+    return render_template("dashboard.html", metabase_embed_url=embed_url)
 
 
 @app.route("/reports")

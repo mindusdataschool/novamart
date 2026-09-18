@@ -8,6 +8,7 @@ Pillow==10.2.0
 # Scripts
 faker==22.5.1
 numpy==1.26.4
+PyJWT
 
 # Shared
 psycopg2-binary==2.9.9

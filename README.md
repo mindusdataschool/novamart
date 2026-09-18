@@ -2,6 +2,8 @@
 
 NovaMart é uma aplicação web em Flask para demonstrar um marketplace e-commerce brasileiro com operações de cadastro, gestão e análise de dados. O projeto reúne um backend relacional em PostgreSQL, uma interface web para CRUD operacional e recursos de relatórios em PDF com métricas mensais.
 
+Documentação consolidada do projeto: [DOCUMENTACAO_PROJETO.md](DOCUMENTACAO_PROJETO.md).
+
 A aplicação foi pensada como um laboratório de dados e analytics: além de servir como portal de negócio, ela possui dados sintéticos realistas, scripts de ingestão contínua e um modelo de dados preparado para dashboards e análises.
 
 ---
@@ -63,7 +65,7 @@ A interface permite visualizar indicadores de negócio, navegar por cadastros e 
 - `scripts/` – DDL, seed data, ingestão contínua e regras de negócio
 - `requirements.txt` – dependências do projeto
 
-![Arquitetura do pipeline](analytics_novamart.svg)
+![Arquitetura do pipeline](novamart_diagram.svg)
 
 ---
 
